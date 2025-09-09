@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>全景 + 跟随场景移动的热点图片</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.css">
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #0b0b0b;
+    }
+    #pano {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* 自定义图片热点的外层（Pannellum 会把它定位到视图里） */
+    .hs-portal {
+      pointer-events: auto;           /* 允许点击 */
+      transform: translateZ(0);       /* 更顺滑 */
+    }
+
+    /* 图片本体用 background，方便 hover 切换 */
+    .hs-portal .hs-img {
+      width: 160px;                   /* 图片显示尺寸：可改 */
+      height: 160px;                  /* 方形示例，可按需要改高宽 */
+      background-size: contain;
+      background-position: center;
+      background-repeat: no-repeat;
+      cursor: pointer;
+      transition: transform .15s ease;
+      will-change: transform, background-image;
+    }
+    .hs-portal .hs-img:hover {
+      transform: scale(1.06);         /* 轻微放大反馈（可删） */
+    }
+
+    /* 可选：旁边的文字标签 */
+    .hs-portal .hs-label {
+      margin-top: 8px;
+      text-align: center;
+      font: 700 22px/1.1 "Helvetica Neue", Arial, sans-serif;
+      color: #111;
+      text-shadow: 0 1px 2px rgba(255,255,255,.6);
+      pointer-events: none;           /* 不拦截拖拽/点击 */
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="pano"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.js"></script>
+  <script>
+    // 1) 初始化全景
+    const viewer = pannellum.viewer('pano', {
+      type: 'equirectangular',
+      panorama: 'https://pub-a175b2c1f81440d28c95dba4c8b6e390.r2.dev/small_empty_house_8k.png',   // ← 全景图
+      autoLoad: true,
+
+      // 禁用缩放，固定视场角
+      mouseZoom: false,
+      keyboardZoom: false,
+      doubleClickZoom: false,
+      showZoomCtrl: false,
+      hfov: 95, minHfov: 95, maxHfov: 95,
+
+    
+
+      showFullscreenCtrl: false,
+      showControls: false,
+      compass: false,
+
+      // 2) 定义图片热点（跟随全景坐标移动）
+      hotSpots: [
+        {
+          yaw: 15,                  // 热点位置（水平角度）
+          pitch: 20,                // 热点位置（垂直角度）
+          cssClass: 'hs-portal',
+          createTooltipFunc: imageHotspot,
+          createTooltipArgs: {
+            width: 275,
+            defaultUrl: '',           // 常态图片
+            hoverUrl:   '', // hover 图片
+            label: ''
+          },
+          clickHandlerFunc: navigateHotspot,
+          clickHandlerArgs: { url: 'WORK.html', target: '_self' } // ★ 跳转到 WORK.html
+        }
+      ]
+    });
+
+    // 预加载 hover 图以避免首次切换闪烁
+    (function preload(){
+      const i = new Image();
+      i.src = '收藏到 Buoi minecaft.gif';
+    })();
+
+    // 3) 自定义热点：放一张可 hover 切换的图片 + 可选文字
+    function imageHotspot(hotSpotDiv, args) {
+      const imgBox = document.createElement('div');
+      imgBox.className = 'hs-img';
+      if (args.width) {
+        imgBox.style.width = args.width + 'px';
+        imgBox.style.height = args.width + 'px';
+      }
+      let normal = args.defaultUrl;
+      let hover  = args.hoverUrl || args.defaultUrl;
+      imgBox.style.backgroundImage = `url("${normal}")`;
+
+      imgBox.addEventListener('mouseenter', () => {
+        imgBox.style.backgroundImage = `url("${hover}")`;
+      });
+      imgBox.addEventListener('mouseleave', () => {
+        imgBox.style.backgroundImage = `url("${normal}")`;
+      });
+
+      hotSpotDiv.appendChild(imgBox);
+
+      if (args.label) {
+        const label = document.createElement('div');
+        label.className = 'hs-label';
+        label.textContent = args.label;
+        hotSpotDiv.appendChild(label);
+      }
+    }
+
+    // 4) 点击热点跳转
+    function navigateHotspot(event, args) {
+      if (!args || !args.url) return;
+      if (args.target === '_blank') {
+        window.open(args.url, '_blank', 'noopener');
+      } else {
+        window.location.assign(args.url); // 同域名页面
+      }
+    }
+
+    // —— 小工具：按下 D 键打印当前 yaw/pitch —— 
+    window.addEventListener('keydown', (e) => {
+      if (e.key.toLowerCase() === 'd') {
+        console.log('yaw:', viewer.getYaw().toFixed(2), 'pitch:', viewer.getPitch().toFixed(2));
+      }
+    });
+  </script>
+</body>
+</html>
