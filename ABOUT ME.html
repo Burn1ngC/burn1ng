@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Burn1ngChrome — About</title>
+
+  <!-- 中文字体（Noto Sans SC），英文走系统 Helvetica -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+ <link rel="icon" href="https://i.postimg.cc/vTq8ZSfy/05.png" type="image/png">
+  <meta charset="UTF-8" />
+  <style>
+    :root{
+      /* 背景图：改成你的图片文件名或路径 */
+      --bg-url: url('bg-07.jpg');
+
+      /* 固定手机图——位置与尺寸（按需调整） */
+      --phone-left: 12vw;
+      --phone-top:  22vh;
+      --phone-w:    34vw;
+
+      /* 可拖拽图默认宽度 */
+      --drag-w: clamp(25px, 24vw, 50px);
+
+      /* 英/中文字体（英：Helvetica；中：Noto Sans SC） */
+      --font-en: "Helvetica Neue", Helvetica, Arial, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --font-sc: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+
+      /* 排版变量（按需修改） */
+      --fs-brand: clamp(36px, 4.6vw, 56px);  --fw-brand: 800;
+      --fs-brand-cn: clamp(16px, 2vw, 24px); --fw-brand-cn: 600;
+
+      --fs-side: 14px;        --fw-side: 700;  --side-letter: 0.06em;
+      --fs-side-home: 13px;   --fw-side-home: 600;
+
+      --fs-section: 16px;     --fw-section: 800;
+      --fs-body-en: 14px;     --fw-body-en: 400;
+      --fs-body-cn: 14px;     --fw-body-cn: 400;
+      --lh-body: 1.8;
+
+      --fs-list: 14px;        --fw-list: 500;
+      --fs-contact: 14px;     --fw-contact: 400;
+
+      /* 大标题间距（可调） */
+      --h2-top: 2.2em;
+      --h2-bottom: .9em;
+    }
+
+    html, body { height:100%; margin:0; }
+    body{
+      background:#0b0b0b;
+      overflow-x:hidden;
+      overflow-y:auto;
+      font-family: var(--font-en), var(--font-sc);
+      scroll-behavior:smooth;
+    }
+    :lang(zh), .cn{ font-family: var(--font-sc), var(--font-en); }
+
+    /* 背景层与右侧切角白纸 */
+    .bg{ position:fixed; inset:0; background: var(--bg-url) center/cover no-repeat; }
+    .sheet{ position:fixed; inset:0; background:#fff; clip-path: polygon(0 0, 92% 0, 100% 24%, 100% 100%, 0 100%); z-index:0; pointer-events:none; }
+
+    /* 页面栅格 */
+    .wrap{
+      position:relative; z-index:1;
+      max-width: 1320px; margin: 0 auto; padding: clamp(16px,3vw,28px);
+      display:grid; grid-template-columns: 1fr 220px; gap: clamp(20px,3.2vw,40px);
+      min-height:100dvh;
+    }
+
+    /* 品牌（可移动） */
+    .brand{
+      grid-column:1/2;
+      display:flex; align-items:center; gap:12px;
+      margin-bottom: 6vh;
+      /* 新增：通过 CSS 变量控制位移 */
+      --brand-x: 0px;     /* 默认左右位移 */
+      --brand-y: 0px;     /* 默认上下位移 */
+      transform: translate(var(--brand-x), var(--brand-y));
+      will-change: transform;
+    }
+    .brand .logo{ width:40px; height:auto; display:block; }
+    .brand-title{ font-size: var(--fs-brand); font-weight: var(--fw-brand); line-height:1.15; margin:0; }
+    .brand-sub{ font-size: var(--fs-brand-cn); font-weight: var(--fw-brand-cn); }
+
+    /* 右侧导航 */
+    .side{ grid-column:2/3; display:flex; flex-direction:column; align-items:flex-start; gap:14px; padding-top:8px; }
+    .side a{ text-decoration:none; color:#111; }
+    .side-link{ font-size:var(--fs-side); font-weight:var(--fw-side); letter-spacing:var(--side-letter); text-transform:uppercase; }
+    .home-link{ margin-top:12px; display:inline-flex; flex-direction:column; gap:2px; line-height:1; }
+    .home-link span{ font-size:var(--fs-side-home); font-weight:var(--fw-side-home); }
+    .home-link:hover{ text-decoration:underline; }
+
+    /* 主区：左列占位 + 右列正文 */
+    .main{ grid-column:1/2; display:grid; grid-template-columns: minmax(260px, 440px) 1fr; gap: clamp(20px,3.2vw,40px); align-items:start; }
+    .phone-space{ min-height: 80vh; }
+
+    .section-title{ font-size:var(--fs-section); font-weight:var(--fw-section); line-height:1.25; }
+    .content .section-title{ margin: var(--h2-top) 0 var(--h2-bottom); }
+    .content .section-title:first-child{ margin-top: 0; }
+    .content .section-title + p,
+    .content .section-title + ul{ margin-top: 0; }
+
+    .body-en{ font-size:var(--fs-body-en); font-weight:var(--fw-body-en); line-height:var(--lh-body); color:#111; }
+    .body-cn{ font-size:var(--fs-body-cn); font-weight:var(--fw-body-cn); line-height:var(--lh-body); color:#333; }
+
+    .list{ list-style:none; padding-left:0; margin:.6em 0 1.2em; }
+    .list li{ font-size:var(--fs-list); font-weight:var(--fw-list); line-height:1.7; margin:2px 0; }
+    .list li::marker{ content:none; }
+
+    .contact{ font-size:var(--fs-contact); font-weight:var(--fw-contact); line-height:1.7; }
+
+    /* 固定手机图（位于文字下方/下层） */
+    .fixed-phone{
+      position:fixed; left:var(--phone-left); top:var(--phone-top);
+      width:var(--phone-w); height:auto; z-index:1;
+      pointer-events:none; user-select:none; -webkit-user-drag:none;
+      filter: drop-shadow(0 14px 30px rgba(0,0,0,.18));
+    }
+
+    /* 拖拽小图（可保留或删除） */
+    .hover-drag{
+      position:fixed; left:22%; top:10%;
+      width:var(--drag-w);
+      transform: translate(var(--tx,-50%), var(--ty,-50%)) scale(var(--s,1));
+      transition: transform .15s ease;
+      z-index:4; user-select:none; touch-action:manipulation; cursor:grab;
+    }
+    .hover-drag:active{ cursor:grabbing; }
+    .hover-drag:hover{ --s:1.03; }
+    .hover-drag img{ display:block; width:100%; height:auto; pointer-events:none; -webkit-user-drag:none; }
+
+    /* ===== 手写图：inline（随滚动），位置可调（左右+上下） ===== */
+    .handwrap{
+      display:block;
+      width:100%;
+      margin:.8em 0 1.4em;
+      text-align:left;                 /* 默认左对齐（可用类改成 center / right） */
+      --hand-w: 420px;                 /* 默认宽度（可在行内 style 覆盖） */
+      --hand-offset: 8px;              /* 水平微调：正=向右，负=向左 */
+      --hand-y: 0px;                   /* 竖直微调：负=向上，正=向下 */
+    }
+    .handwrap--center{ text-align:center; }
+    .handwrap--right{ text-align:right; }
+
+    .handwrite-inline{
+      display:inline-block;
+      width: var(--hand-w);
+      height:auto;
+      transform: translate(var(--hand-offset), var(--hand-y));
+      pointer-events:none;
+      user-select:none;
+      -webkit-user-drag:none;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,.06));
+    }
+
+    /* 固定版（保留以便随时切换） */
+    .handwrite-fixed{
+      position: fixed;
+      left: 2%;
+      top: 72%;
+      width: clamp(220px, 36vw, 560px);
+      height: auto;
+      transform: translate(-50%, -50%);
+      z-index: 6;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag:none;
+      filter: drop-shadow(0 6px 18px rgba(0,0,0,.06));
+    }
+
+    @media (max-width: 820px){
+      .wrap{ grid-template-columns: 1fr; }
+      .side{ order:-1; flex-direction:row; gap:1em; align-items:center; }
+      .home-link{ flex-direction:row; gap:.35em; }
+      .main{ grid-template-columns: 1fr; }
+      .brand{ margin-bottom: 1em; }
+      .phone-space{ display:none; }
+
+      /* 小屏：标题默认不位移；手写图自动居中并取消偏移 */
+      .brand{ --brand-x:0px; --brand-y:0px; }
+      .handwrap{ text-align:center; }
+      .handwrite-inline{ width: min(72vw, 420px); transform: translate(0, 0); }
+    }
+
+    /* “名字”换行样式（保持你原来效果） */
+    .brand { align-items: flex-start; }
+    .brand-title{
+      display: inline-block;
+      line-height: 1.1;
+    }
+    .brand-title .brand-sub{
+      display: block;
+      margin-top: .25em;
+      font-size: var(--fs-brand-cn);
+      font-weight: var(--fw-brand-cn);
+      color: #231815;
+    }
+  </style>
+</head>
+<body>
+  <!-- 背景 + 白纸切角 -->
+  <div class="bg" aria-hidden="true"></div>
+  <div class="sheet" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <!-- 品牌（在这里调位置：--brand-x / --brand-y） -->
+    <header class="brand" style="--brand-x: 300px; --brand-y: 0px;">
+      <h1 class="brand-title">
+        路童妍 <small class="brand-sub">Burn1ngChrome</small>
+      </h1>
+    </header>
+
+    <!-- 右侧导航 -->
+    <nav class="side" aria-label="Site">
+      <a class="side-link" href="ABOUT ME.html">ABOUT ME</a>
+      <a class="side-link" href="WORK.html">WORKS</a>
+      <a class="side-link" href="others.html">OTHERS</a>
+      <a class="home-link" href="index.html" title="Go to homepage">
+        <span>way</span><span>back</span><span>home</span>
+      </a>
+    </nav>
+
+    <!-- 主体 -->
+    <section class="main">
+      <div class="phone-space" aria-hidden="true"></div>
+
+      <article class="content">
+        <h2 class="section-title">WHO</h2>
+        <p class="body-en">
+          Designer &amp; painter. I'm drawn to visually charged, high-tension ideas and I center
+          personal emotion in my work. When I'm not designing, you'll probably find me immersed in
+          rock music and video games&mdash;often where new sparks come from. If this resonates, let's make
+          something together.
+        </p>
+
+        <p class="body-cn cn" lang="zh-CN">
+          一名设计师和画家。我喜欢富有张力的创意视觉作品，注重个人情感在作品里的表达。
+          不做设计的时候，你也许会看到我沉浸在摇滚乐和电子游戏里，偶尔从中获得灵感。
+          如果你也感兴趣，我们能一起玩吗？
+        </p>
+
+        <h2 class="section-title">I CAN</h2>
+        <ul class="list">
+          <li>领导团队工作</li>
+          <li>抚摸问题</li>
+          <li>注意细节</li>
+          <li>照顾队友 ：）</li>
+        </ul>
+
+        <h2 class="section-title">FIND ME IN…</h2>
+        <p class="contact">Burn1ngchrome@outlook.com</p>
+
+        <!-- 手写图：改 --hand-w（宽度），--hand-offset（左右），--hand-y（上下） -->
+        <div class="handwrap handwrap--left" style="--hand-w:420px; --hand-offset:-45px; --hand-y:-70px;">
+          <img class="handwrite-inline" src="line-08.png" alt="hand-drawn instagram/email" draggable="false" />
+        </div>
+      </article>
+    </section>
+  </div>
+
+  <!-- 固定手机图（不会动） -->
+  <img class="fixed-phone" src="phone%20person.png" alt="phone" draggable="false" aria-hidden="true" />
+
+  <!-- 可拖拽小图（如不需要可删除下面整段） -->
+  <div class="hover-drag"
+       data-draggable="true"
+       data-hover="true"
+       data-normal-src="sims.png"
+       data-hover-src="images/card-hover.png">
+    <img src="sims.png" alt="">
+  </div>
+
+  <script>
+    // 初始化 .hover-drag（若不需要可删）
+    document.querySelectorAll('.hover-drag').forEach((wrap) => {
+      const img = wrap.querySelector('img');
+      const normal = wrap.dataset.normalSrc || img.getAttribute('src');
+      const hover  = wrap.dataset.hoverSrc  || normal;
+      const useHover = (wrap.dataset.hover || 'false') === 'true';
+      img.src = normal;
+
+      if (useHover){
+        wrap.addEventListener('mouseenter', () => img.src = hover);
+        wrap.addEventListener('mouseleave', () => img.src = normal);
+        wrap.addEventListener('touchstart', () => { img.src = hover; setTimeout(()=>img.src=normal,180); }, {passive:true});
+      }
+
+      if (wrap.dataset.draggable === 'true'){
+        let dragging=false, startX=0, startY=0, baseX=0, baseY=0, inited=false;
+        const centerToTL = () => {
+          if (inited) return;
+          const r = wrap.getBoundingClientRect();
+          wrap.style.left = r.left + 'px';
+          wrap.style.top  = r.top  + 'px';
+          wrap.style.setProperty('--tx','0px');
+          wrap.style.setProperty('--ty','0px');
+          inited = true;
+        };
+        const clamp = (v,min,max)=>Math.max(min,Math.min(max,v));
+        const onDown = (cx,cy) => { centerToTL(); const r=wrap.getBoundingClientRect();
+          baseX=r.left; baseY=r.top; startX=cx; startY=cy; dragging=true; wrap.style.transition='transform .02s linear'; };
+        const onMove = (cx,cy) => {
+          if(!dragging) return;
+          const dx=cx-startX, dy=cy-startY;
+          const vw=window.innerWidth, vh=window.innerHeight;
+          const r=wrap.getBoundingClientRect();
+          const newL=clamp(baseX+dx, 0, vw-r.width);
+          const newT=clamp(baseY+dy, 0, vh-r.height);
+          wrap.style.left = newL+'px'; wrap.style.top  = newT+'px';
+        };
+        const onUp = () => { dragging=false; wrap.style.transition='transform .15s ease'; };
+
+        wrap.addEventListener('mousedown', e=>{ onDown(e.clientX,e.clientY); e.preventDefault(); });
+        window.addEventListener('mousemove', e=> onMove(e.clientX,e.clientY));
+        window.addEventListener('mouseup', onUp);
+
+        wrap.addEventListener('touchstart', e=>{ const t=e.touches[0]; onDown(t.clientX,t.clientY); }, {passive:true});
+        window.addEventListener('touchmove', e=>{ if(!dragging) return; const t=e.touches[0]; onMove(t.clientX,t.clientY); e.preventDefault(); }, {passive:false});
+        window.addEventListener('touchend', onUp);
+
+        window.addEventListener('resize', ()=>{ 
+          if(!inited) return;
+          const vw=window.innerWidth, vh=window.innerHeight;
+          const r=wrap.getBoundingClientRect();
+          const newL=Math.min(r.left, vw-r.width);
+          const newT=Math.min(r.top,  vh-r.height);
+          wrap.style.left = Math.max(0,newL)+'px';
+          wrap.style.top  = Math.max(0,newT)+'px';
+        });
+      }
+    });
+  </script>
+</body>
+</html>
