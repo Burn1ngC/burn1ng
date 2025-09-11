@@ -1,78 +1,68 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>burn1ng.me — mobile</title>
-  <link rel="icon" href="https://i.postimg.cc/vTq8ZSfy/05.png" type="image/png">
-  <style>
-    :root { --brand:#ff4d4f; }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; padding: 20px 16px 24px;
-      background:#0b0b0b; color:#fff;
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
-    }
-    header { margin: 8px 0 24px; }
-    h1 { margin:0 0 6px; font-size:22px; font-weight:700; }
-    p  { margin:0; opacity:.8; font-size:14px; line-height:1.5; }
+<!-- 放在 <body> 里合适位置（建议导航上方） -->
+<section id="pano-wrap" style="position:relative;height:70vh;border-radius:12px;overflow:hidden;background:#111;margin:12px 0;">
+  <button id="enter360"
+    style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+           padding:12px 16px;border-radius:999px;border:1px solid #333;background:#0b0b0b;color:#fff;
+           font-weight:600">进入全景</button>
+  <div id="m-pano" hidden style="position:absolute;inset:0;"></div>
+</section>
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 20px;
-    }
-    .card {
-      display:block; text-decoration:none; color:#fff;
-      background:#141414; border:1px solid #222; border-radius:14px;
-      padding:14px; min-height:92px;
-    }
-    .card b { display:block; font-size:16px; margin-bottom:6px; }
-    .card span { font-size:12px; opacity:.75; }
+<!-- Pannellum 脚本（若页面里已有就不必再引入） -->
+<script src="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.js"></script>
+<script>
+  // 是否支持 WebP（简易检测）
+  var supportsWebP = (function(){
+    try { return document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0; }
+    catch(e){ return false; }
+  })();
 
-    .cta {
-      margin-top: 24px; display:flex; gap:12px; flex-wrap:wrap;
-    }
-    .btn {
-      display:inline-block; padding:10px 14px; border-radius:999px;
-      text-decoration:none; color:#fff; background:var(--brand);
-      font-size:14px; font-weight:600;
-    }
-    .ghost {
-      background:transparent; border:1px solid #333;
-    }
-    footer {
-      margin-top: 28px; opacity:.6; font-size:12px;
-    }
-  </style>
-</head>
-<body>
-  <header>
-    <h1>burn1ng.me</h1>
-    <p>From <em>burn1ngchrome</em> to <em>burn1ng.me</em> — 把赛博的“chrome”收束成 “me”。</p>
-  </header>
+  // 👇 把这两行换成你为手机准备的轻量图地址（优先 webp，其次 jpg）
+  var panoMobileWebP = '手机-01.webp';  // 建议 4096x2048，2-5MB
+  var panoMobileJPG  = '手机-01.jpg';
+  var panoURL = supportsWebP ? panoMobileWebP : panoMobileJPG;
 
-  <nav class="grid">
-    <a class="card" href="WORK.html">
-      <b>WORK</b><span>精选项目与平面作品</span>
-    </a>
-    <a class="card" href="ABOUT ME.html">
-      <b>ABOUT</b><span>我是谁 / 我在做什么</span>
-    </a>
-    <a class="card" href="CONTACT.html">
-      <b>CONTACT</b><span>联系与社交</span>
-    </a>
-    <a class="card" href="OTHERS.html">
-      <b>OTHERS</b><span>杂项 / 实验 / 灵感夹</span>
-    </a>
-  </nav>
+  // 点按钮再初始化全景，避免首屏压力
+  document.getElementById('enter360').addEventListener('click', function(){
+    var btn = this;
+    btn.disabled = true; btn.textContent = '加载中…';
 
-  <div class="cta">
-    <a class="btn" href="index.html?desktop=1">查看桌面版</a>
-    <a class="btn ghost" href="/">返回首页</a>
-  </div>
+    // WebGL 能力检测（失败则兜底）
+    try {
+      var c = document.createElement('canvas');
+      var gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+      if (!gl) throw new Error('No WebGL');
+    } catch(e) {
+      document.getElementById('m-pano').innerHTML =
+        '<div style="color:#fff;display:grid;place-items:center;height:100%;">设备不支持全景预览。<a href="index.html?desktop=1" style="color:#ff4d4f">试试桌面版</a></div>';
+      btn.remove();
+      document.getElementById('m-pano').hidden = false;
+      return;
+    }
 
-  <footer>© burn1ng.me</footer>
-</body>
-</html>
+    var el = document.getElementById('m-pano');
+    el.hidden = false; btn.remove();
+
+    try {
+      pannellum.viewer('m-pano', {
+        type: 'equirectangular',
+        panorama: panoURL,
+        autoLoad: true,
+        showControls: true,
+
+        // 性能友好：固定视场角，减少缩放带来的开销
+        mouseZoom: false, keyboardZoom: false, doubleClickZoom: false, showZoomCtrl: false,
+        hfov: 90, minHfov: 90, maxHfov: 90,
+
+        // 合理的初始与限制
+        yaw: 0, pitch: 10, minYaw: -100, maxYaw: 100, minPitch: -40, maxPitch: 45,
+        compass: false,
+
+        // 可选：打开重力感应（有些 iOS 需手动允许）
+        orientationOnByDefault: true
+      });
+    } catch (e) {
+      el.innerHTML =
+        '<div style="color:#fff;display:grid;place-items:center;height:100%;">加载失败，可能是图片跨域或过大。<a href="index.html?desktop=1" style="color:#ff4d4f">转到桌面版</a></div>';
+    }
+  });
+</script>
