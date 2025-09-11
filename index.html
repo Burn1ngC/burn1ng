@@ -9,7 +9,7 @@
       var forceDesktop = new URLSearchParams(location.search).has('desktop');
       if ((isMobileUA || isSmallScreen) && !forceDesktop) {
         // 用 replace 防止返回键循环
-        location.replace('mobile.html');
+        location.replace('MOBILE.html');
       }
     })();
   </script>
@@ -89,7 +89,7 @@
     <div>
       <h2 style="margin:0 0 12px">加载全景失败或设备不支持 WebGL</h2>
       <p style="margin:0 0 16px">你可以浏览轻量版页面：</p>
-      <p><a href="mobile.html">👉 前往 mobile.html</a></p>
+      <p><a href="MOBILE.html">👉 前往 mobile.html</a></p>
       <p style="margin-top:16px;font-size:14px;opacity:.75">
         如需继续尝试桌面版，可刷新页面；或检查网络 / 资源链接是否可达。
       </p>
@@ -268,3 +268,4 @@
   </noscript>
 </body>
 </html>
+
