@@ -1,124 +1,308 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <!-- ① 提前放跳转脚本：识别手机/平板直接去 MOBILE.html（?desktop=1 可强制桌面） -->
+  <script>
+    (function () {
+      var isMobileUA = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      var isSmallScreen = Math.min(screen.width, screen.height) <= 820;
+      var forceDesktop = new URLSearchParams(location.search).has('desktop');
+      if ((isMobileUA || isSmallScreen) && !forceDesktop) {
+        location.replace('MOBILE.html');
+      }
+    })();
+  </script>
+
+  <!-- 保持 About 页一致的中文字体引用 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="icon" href="https://i.postimg.cc/vTq8ZSfy/05.png" type="image/png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Burn1ngChrome;)</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.css">
   <style>
+    :root{
+      --font-en: "Helvetica Neue", Helvetica, Arial, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --font-sc: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", "Source Han Sans SC", sans-serif;
+
+      /* About 页里 side 的字号/权重/letter-spacing */
+      --fs-side: 14px;
+      --fw-side: 700;
+      --side-letter: 0.06em;
+      --fs-side-home: 13px;
+      --fw-side-home: 600;
+    }
+
     html, body {
-      height: 100%;
-      margin: 0;
-      overflow: hidden;
-      background: #0b0b0b;
+      height: 100%; margin: 0; overflow: hidden; background: #0b0b0b;
+      font-family: var(--font-en), var(--font-sc);
     }
-    #pano {
+    #pano { position: fixed; inset: 0; width: 100vw; height: 100vh; }
+
+    /* ========== 右上角叠加导航：严格还原 About 页风格 ========== */
+    .side-overlay{
       position: fixed;
-      inset: 0;
-      width: 100vw;
-      height: 100vh;
-    }
-
-    /* 自定义图片热点的外层（Pannellum 会把它定位到视图里） */
-    .hs-portal {
-      pointer-events: auto;           /* 允许点击 */
-      transform: translateZ(0);       /* 更顺滑 */
-    }
-
-    /* 图片本体用 background，方便 hover 切换 */
-    .hs-portal .hs-img {
-      width: 160px;                   /* 图片显示尺寸：可改 */
-      height: 160px;                  /* 方形示例，可按需要改高宽 */
-      background-size: contain;
-      background-position: center;
-      background-repeat: no-repeat;
-      cursor: pointer;
-      transition: transform .15s ease;
-      will-change: transform, background-image;
-    }
-    .hs-portal .hs-img:hover {
-      transform: scale(1.06);         /* 轻微放大反馈（可删） */
-    }
-
-    /* 可选：旁边的文字标签 */
-    .hs-portal .hs-label {
-      margin-top: 8px;
-      text-align: center;
-      font: 700 22px/1.1 "Helvetica Neue", Arial, sans-serif;
-      color: #111;
-      text-shadow: 0 1px 2px rgba(255,255,255,.6);
-      pointer-events: none;           /* 不拦截拖拽/点击 */
+      /* 尝试把位置与 About 页中 wrap(max-width:1320px; padding:clamp(16px,3vw,28px)) 的右侧对齐 */
+      /* 当视口很宽时： right = (viewport - 1320px)/2 + padding (取中间 padding=24px) */
+      /* 对不同视口做容错：用 clamp 保障不会跑到屏幕外 */
+      right: clamp(16px, calc((100vw - 1320px) / 2 + 24px), 48px);
+      top: clamp(16px, 3vw, 32px);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 14px;
+      z-index: 1000;
       user-select: none;
+      pointer-events: auto; /* 允许点击链接 */
+      font-family: var(--font-sc), var(--font-en);
     }
+
+    /* 文本样式严格照 About 页（黑色、无阴影） */
+    .side-overlay a { text-decoration: none; color: #111; }
+    .side-overlay .side-link{
+      font-size: var(--fs-side);
+      font-weight: var(--fw-side);
+      letter-spacing: var(--side-letter);
+      text-transform: uppercase;
+      color: #111;            /* 黑色文字（About 页是黑） */
+      text-shadow: none;      /* 去掉阴影 */
+      padding: 2px 0;
+    }
+    .side-overlay .home-link{
+      margin-top: 8px;
+      display:inline-flex;
+      flex-direction: column;
+      gap: 2px;
+      line-height: 1;
+      color: #111;
+    }
+    .side-overlay .home-link span{
+      font-size: var(--fs-side-home);
+      font-weight: var(--fw-side-home);
+    }
+
+    /* 小屏行为：与 About 页一致，导航收敛到更紧凑的位置 */
+    @media (max-width: 1024px){
+      .side-overlay{
+        right: 18px;
+        top: 18px;
+      }
+      .side-overlay .side-link{ font-size: 13px; }
+      .side-overlay .home-link span{ font-size: 12px; }
+      /* 在非常窄的屏幕上不要挡到交互（可根据需要隐藏） */
+    }
+
+    /* ========== 你原本的热点/箭头 等样式（保留） ========== */
+    .hs-portal { pointer-events: auto; transform: translateZ(0); }
+    .hs-portal .hs-img {
+      width: 160px; height: 160px;
+      background-size: contain; background-position: center; background-repeat: no-repeat;
+      cursor: pointer; transition: transform .15s ease; will-change: transform, background-image;
+      touch-action: manipulation;
+    }
+    .hs-portal .hs-img:hover { transform: scale(1.06); }
+    .hs-portal .hs-label {
+      margin-top: 8px; text-align: center; font: 700 22px/1.1 var(--font-en);
+      color: #111; pointer-events: none; user-select: none;
+    }
+
+    /* arrows */
+    .walk-spot{ touch-action:none; -webkit-user-select:none; user-select:none; cursor:pointer;
+      background:transparent!important; border:0!important; box-shadow:none!important; }
+    .pnlm-hotspot.walk-spot .pnlm-hotspot-base{ display:none!important; }
+    .walk-spot .wrap{ display:inline-block; transform: rotate(var(--rot,0deg)); transform-origin:center; transition: transform .15s ease; }
+    .walk-spot:hover .wrap{ transform: rotate(var(--rot,0deg)) scale(var(--hover,1.08)); }
+    .walk-spot .arrow-img{
+      display:block; width:var(--w,120px); height:auto; border:0; border-radius:0;
+      filter: var(--shadow, drop-shadow(0 6px 4px rgba(0,0,0,.35)));
+      pointer-events:none; -webkit-user-drag:none; user-drag:none;
+    }
+
+    /* 兜底提示层 */
+    .fallback {
+      position: fixed; inset: 0; display: none; place-items: center;
+      color: #fff; background: #0b0b0b; padding: 24px; text-align: center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      z-index: 5;
+    }
+    .fallback a { color: #ff4d4f; }
+    #pano .pnlm-load-box, #pano .pnlm-loading{ display:none!important; }
   </style>
 </head>
 <body>
-  <div id="pano"></div>
+  <div id="pano" aria-label="Panorama"></div>
+
+  <!-- 右上角：与 About 页“同样形式 / 黑色无阴影 / 位置尽量一致” -->
+  <nav class="side-overlay" aria-label="Site overlay">
+    <a class="side-link" href="ABOUT ME.html">ABOUT ME</a>
+    <a class="side-link" href="WORK.html">WORKS</a>
+    <a class="side-link" href="OTHERS.html">OTHERS</a>
+    <a class="home-link" href="index.html" title="Go to homepage">
+      <span>way</span><span>back</span><span>home</span>
+    </a>
+  </nav>
+
+  <div id="fallback" class="fallback" role="alert" aria-hidden="true">
+    <div>
+      <h2 style="margin:0 0 12px">加载全景失败或设备不支持 WebGL</h2>
+      <p style="margin:0 0 16px">你可以浏览轻量版页面：</p>
+      <p><a href="MOBILE.html">👉 前往 MOBILE.html</a></p>
+      <p style="margin-top:16px;font-size:14px;opacity:.75">
+        如需继续尝试桌面版，可刷新页面；或检查网络 / 资源链接是否可达。
+      </p>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.js"></script>
   <script>
-    // 1) 初始化全景
-    const viewer = pannellum.viewer('pano', {
-      type: 'equirectangular',
-      panorama: 'https://pub-a175b2c1f81440d28c95dba4c8b6e390.r2.dev/small_empty_house_8k.png',   // ← 全景图
-      autoLoad: true,
-
-      // 禁用缩放，固定视场角
-      mouseZoom: false,
-      keyboardZoom: false,
-      doubleClickZoom: false,
-      showZoomCtrl: false,
-      hfov: 95, minHfov: 95, maxHfov: 95,
-
-    
-
-      showFullscreenCtrl: false,
-      showControls: false,
-      compass: false,
-
-      // 2) 定义图片热点（跟随全景坐标移动）
-      hotSpots: [
-        {
-          yaw: 15,                  // 热点位置（水平角度）
-          pitch: 20,                // 热点位置（垂直角度）
-          cssClass: 'hs-portal',
-          createTooltipFunc: imageHotspot,
-          createTooltipArgs: {
-            width: 275,
-            defaultUrl: '',           // 常态图片
-            hoverUrl:   '', // hover 图片
-            label: ''
-          },
-          clickHandlerFunc: navigateHotspot,
-          clickHandlerArgs: { url: 'WORK.html', target: '_self' } // ★ 跳转到 WORK.html
-        }
-      ]
-    });
-
-    // 预加载 hover 图以避免首次切换闪烁
-    (function preload(){
-      const i = new Image();
-      i.src = '收藏到 Buoi minecaft.gif';
+    /* ========== 0) 基础能力检测：无 WebGL 直接兜底 ========== */
+    (function ensureWebGL(){
+      try {
+        var c = document.createElement('canvas');
+        var gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+        if (!gl) throw new Error('No WebGL');
+      } catch(e) {
+        document.getElementById('fallback').style.display = 'grid';
+        throw e;
+      }
     })();
 
-    // 3) 自定义热点：放一张可 hover 切换的图片 + 可选文字
+    /* ========== 资源集中管理（改这里） ========== */
+    const ARROW_IMG = 'https://i.postimg.cc/wxyTHP74/image.png'; // 箭头图（前进）
+    const PANOS = {
+      s1: 'wangzhan3-01.png',  // 场景1
+      s2: 'wangzhan3-03.png'   // 场景2
+    };
+
+    // 预加载（加入 s2 新图，避免首次闪烁）
+    (function preload(){
+      [
+        ARROW_IMG,
+        // s1 用到
+        'can-02.png','evil-02.png',
+        'https://i.postimg.cc/Qd02Mpcq/234-04.png',
+        'https://i.postimg.cc/dQrHFYsJ/Inspo.png',
+        // s2 用到（示例）
+        'wangzhan3-04.png','wangzhan3-05.png','yan-06.png','yan-07.png',
+        'renwu-08.png','renwu-10.png','renwu-09.png','renwu-11.png','renwu-12.png','renwu-13.png',
+        // 热点4/5（占位）
+        'hotspot4.png','hotspot4-hover.png','hotspot5.png','hotspot5-hover.png'
+      ].forEach(src=>{ const i=new Image(); i.referrerPolicy='no-referrer'; i.src=src; });
+    })();
+
+    /* ========== 1) 多场景配置 ========== */
+    const config = {
+      default: {
+        firstScene: 's1',
+        autoLoad: true,
+        mouseZoom: false, keyboardZoom: false, doubleClickZoom: false,
+        showZoomCtrl: false, showFullscreenCtrl: false,
+        showControls: false, compass: false,
+        sceneFadeDuration: 800
+      },
+      scenes: {
+        /* —— 场景 1 —— */
+        s1: {
+          type: 'equirectangular',
+          panorama: PANOS.s1,
+
+          yaw: 9.5, pitch: 4, hfov: 95,
+          minYaw: -10, maxYaw: 360,
+          minPitch: -60, maxPitch: 30,
+          minHfov: 95, maxHfov: 95,
+
+          hotSpots: [
+            { yaw: -90, pitch: 13, cssClass: 'hs-portal',
+              createTooltipFunc: imageHotspot,
+              createTooltipArgs: { width: 600, defaultUrl: 'can-02.png', hoverUrl: 'can-02.png', label: '' },
+              clickHandlerFunc: navigateHotspot, clickHandlerArgs: { url: 'canyou.html', target: '_self' } },
+
+            
+            { yaw: 130, pitch: 15, cssClass: 'hs-portal',
+              createTooltipFunc: imageHotspot,
+              createTooltipArgs: { width: 700, defaultUrl: 'evil-02.png', hoverUrl: 'evil-02.png', label: '' },
+              clickHandlerFunc: navigateHotspot, clickHandlerArgs: { url: 'evil fruits.html', target: '_self' } },
+
+            
+              
+            { yaw: 20, pitch: -18, cssClass: 'walk-spot',
+              createTooltipFunc: walkImageHotspot,
+              createTooltipArgs: { to: 's2', width: 120, rotate: 0, _yaw: 20, _pitch: -18, img: ARROW_IMG } }
+          ]
+        },
+
+        /* —— 场景 2 —— */
+        s2: {
+          type: 'equirectangular',
+          panorama: PANOS.s2,
+
+          yaw: 0, pitch: 0, hfov: 95,
+          minYaw: -180, maxYaw: 180,
+          minPitch: -60, maxPitch: 30,
+          minHfov: 95, maxHfov: 95,
+
+          hotSpots: [
+            { yaw: -90, pitch: 5, cssClass: 'hs-portal',
+              createTooltipFunc: imageHotspot,
+              createTooltipArgs: { width: 600, defaultUrl: 'wangzhan3-04.png', hoverUrl: 'wangzhan3-05.png', label: '' },
+              clickHandlerFunc: navigateHotspot, clickHandlerArgs: { url: 'fly.html', target: '_self' } },
+
+            { yaw: 20, pitch: 5, cssClass: 'hs-portal',
+              createTooltipFunc: imageHotspot,
+              createTooltipArgs: { width: 240, defaultUrl: 'renwu-10.png', hoverUrl: 'renwu-08.png', label: '' },
+              clickHandlerFunc: navigateHotspot, clickHandlerArgs: { url: 'https://yexiiiii.framer.website', target: '_self' } },
+
+            { yaw: 130, pitch: 0, cssClass: 'hs-portal',
+              createTooltipFunc: imageHotspot,
+              createTooltipArgs: { width: 600, defaultUrl: 'yan-06.png', hoverUrl: 'yan-07.png', label: '' },
+              clickHandlerFunc: navigateHotspot, clickHandlerArgs: { url: 'aid.html', target: '_self' } },
+
+            { yaw: 10, pitch: -8, cssClass: 'hs-portal',
+              createTooltipFunc: imageHotspot,
+              createTooltipArgs: { width: 220, defaultUrl: 'renwu-11.png', hoverUrl: 'renwu-09.png', label: '' },
+              clickHandlerFunc: navigateHotspot, clickHandlerArgs: { url: 'https://joyceji.framer.website', target: '_self' } },
+
+            { yaw: 40, pitch: -1, cssClass: 'hs-portal',
+              createTooltipFunc: imageHotspot,
+              createTooltipArgs: { width: 220, defaultUrl: 'renwu-12.png', hoverUrl: 'renwu-13.png', label: '' },
+              clickHandlerFunc: navigateHotspot, clickHandlerArgs: { url: 'index.html', target: '_self' } },
+
+            { yaw: -160, pitch: -18, cssClass: 'walk-spot',
+              createTooltipFunc: walkImageHotspot,
+              createTooltipArgs: { to: 's1', width: 120, rotate: 180, _yaw: -160, _pitch: -18, img: ARROW_IMG } }
+          ]
+        }
+      }
+    };
+
+    const viewer = pannellum.viewer('pano', config);
+
+    try { viewer.on('error', function(){ document.getElementById('fallback').style.display = 'grid'; }); } catch(e){}
+
+    /* ========== 2) 图片热点组件（hover/触摸反馈） ========== */
     function imageHotspot(hotSpotDiv, args) {
       const imgBox = document.createElement('div');
       imgBox.className = 'hs-img';
+
       if (args.width) {
-        imgBox.style.width = args.width + 'px';
-        imgBox.style.height = args.width + 'px';
+        imgBox.style.width  = args.width + 'px';
+        imgBox.style.height = (args.height ? args.height : args.width) + 'px';
       }
-      let normal = args.defaultUrl;
-      let hover  = args.hoverUrl || args.defaultUrl;
+
+      const normal = args.defaultUrl;
+      const hover  = args.hoverUrl || args.defaultUrl;
       imgBox.style.backgroundImage = `url("${normal}")`;
 
-      imgBox.addEventListener('mouseenter', () => {
+      imgBox.addEventListener('mouseenter', () => { imgBox.style.backgroundImage = `url("${hover}")`; });
+      imgBox.addEventListener('mouseleave', () => { imgBox.style.backgroundImage = `url("${normal}")`; });
+
+      imgBox.addEventListener('touchstart', () => {
         imgBox.style.backgroundImage = `url("${hover}")`;
-      });
-      imgBox.addEventListener('mouseleave', () => {
-        imgBox.style.backgroundImage = `url("${normal}")`;
-      });
+        setTimeout(()=>{ imgBox.style.backgroundImage = `url("${normal}")`; }, 180);
+      }, {passive:true});
 
       hotSpotDiv.appendChild(imgBox);
 
@@ -130,23 +314,85 @@
       }
     }
 
-    // 4) 点击热点跳转
+    /* ========== 3) 点击热点跳转 ========== */
     function navigateHotspot(event, args) {
       if (!args || !args.url) return;
-      if (args.target === '_blank') {
-        window.open(args.url, '_blank', 'noopener');
-      } else {
-        window.location.assign(args.url); // 同域名页面
-      }
+      if (args.target === '_blank') window.open(args.url, '_blank', 'noopener');
+      else window.location.assign(args.url);
     }
 
-    // —— 小工具：按下 D 键打印当前 yaw/pitch —— 
+    /* ========== 4) 街景式箭头热点 + 平滑切场景 ========== */
+    function guardHotspot(el){
+      ['pointerdown','mousedown','touchstart'].forEach(ev=>{
+        el.addEventListener(ev, (e)=>{ e.preventDefault(); e.stopPropagation(); }, {capture:true, passive:false});
+      });
+      ['pointermove','mousemove','touchmove','pointerup','mouseup','touchend','wheel','contextmenu']
+        .forEach(ev=>{ el.addEventListener(ev, (e)=>{ e.stopPropagation(); }, {capture:true}); });
+    }
+
+    function walkImageHotspot(hotSpotDiv, args){
+      hotSpotDiv.classList.add('walk-spot');
+      const wrap = document.createElement('span');
+      wrap.className = 'wrap';
+      wrap.style.setProperty('--rot',   (args.rotate ?? 0) + 'deg');
+      wrap.style.setProperty('--hover', (args.hoverScale ?? 1.08));
+
+      const img = document.createElement('img');
+      img.className = 'arrow-img';
+      img.src = args.img || ARROW_IMG;
+      img.alt = args.alt || 'go';
+      img.setAttribute('draggable','false');
+      if (args.width) wrap.style.setProperty('--w', args.width + 'px');
+      if (args.shadow === false) wrap.style.setProperty('--shadow', 'none');
+
+      wrap.appendChild(img);
+      hotSpotDiv.appendChild(wrap);
+
+      guardHotspot(hotSpotDiv);
+
+      hotSpotDiv.addEventListener('click', ()=>{
+        walkTo(args.to, { alignYaw: (args.alignYaw ?? args._yaw), alignPitch: (args.alignPitch ?? args._pitch) });
+      });
+    }
+
+    function shortestAngleDelta(a,b){ let d=(b-a)%360; if(d>180)d-=360; if(d<-180)d+=360; return d; }
+
+    function walkTo(sceneId, opts={}){
+      const dur  = 380;
+      const zoom = 10;
+      const start = performance.now();
+      const y0 = viewer.getYaw(),   p0 = viewer.getPitch(), f0 = viewer.getHfov();
+      const y1 = (opts.alignYaw   != null) ? opts.alignYaw   : y0;
+      const p1 = (opts.alignPitch != null) ? opts.alignPitch : p0;
+      const ease = t => t<.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2;
+
+      function step(now){
+        const t = Math.min(1, (now - start) / dur);
+        const k = ease(t);
+        viewer.setYaw( y0 + shortestAngleDelta(y0, y1) * k );
+        viewer.setPitch( p0 + (p1 - p0) * k );
+        viewer.setHfov( f0 - zoom * k );
+        if (t < 1) requestAnimationFrame(step);
+        else {
+          viewer.loadScene(sceneId, p1, y1, f0 - zoom);
+          setTimeout(()=> viewer.setHfov(f0), 400);
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    /* —— 调试：按 D 打印当前 yaw/pitch/hfov —— */
     window.addEventListener('keydown', (e) => {
       if (e.key.toLowerCase() === 'd') {
-        console.log('yaw:', viewer.getYaw().toFixed(2), 'pitch:', viewer.getPitch().toFixed(2));
+        console.log('yaw:', viewer.getYaw().toFixed(2), 'pitch:', viewer.getPitch().toFixed(2), 'hfov:', viewer.getHfov().toFixed(2));
       }
     });
   </script>
+
+  <noscript>
+    <div class="fallback" style="display:grid">
+      本页面依赖 JavaScript/WebGL。你也可以访问 <a href="MOBILE.html">MOBILE.html</a>。
+    </div>
+  </noscript>
 </body>
 </html>
-
