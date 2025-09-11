@@ -63,14 +63,14 @@
     // —— 可选：如果你准备了移动端专用 WebP/JPG，请把下面的 PANO_URL 换成它们 ——
     // 例：const PANO_URL = supportsWebP ? 'pano-mobile-4k.webp' : 'pano-mobile-4k.jpg';
 
-    // WebP 能力检测（如果要用双格式时）
-    const supportsWebP = (function(){
-      try { return document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0; }
-      catch(e){ return false; }
-    })();
+    // WebP 检测
+const supportsWebP = (() => {
+  try { return document.createElement('canvas').toDataURL('image/webp').indexOf('data:image/webp') === 0; }
+  catch { return false; }
+})();
 
-    // 当前先用你的 R2 全景（PNG）。后续若有移动端图，改成上面的双格式写法即可。
-    const PANO_URL = 'phone-01.webp';
+// 用双格式自动兜底
+const PANO_URL = supportsWebP ? './phone-01.webp' : './phone-01.jpg';
 
     // 0) WebGL 能力兜底（部分老机或内置浏览器可能无 WebGL）
     (function ensureWebGL(){
@@ -206,4 +206,3 @@
   </noscript>
 </body>
 </html>
-
