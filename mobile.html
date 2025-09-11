@@ -19,7 +19,7 @@
 
     /* 热点图片（触摸有轻触反馈；移动端也兼容） */
     .hs-portal .hs-img{
-      width: 120px; height: 120px; /* 移动端默认更小些 */
+      width: 60px; height: 60px; /* 移动端默认更小些 */
       background: center / contain no-repeat;
       transition: transform .15s ease;
       touch-action: manipulation;
@@ -99,7 +99,7 @@
       minPitch: -40, maxPitch: 47,
 
       // 想开陀螺仪可设为 true（iOS 需手动授权）
-      orientationOnByDefault: false,
+      orientationOnByDefault: true,
 
       hotSpots: [
         /* 热点 1：WORK */
@@ -107,7 +107,7 @@
           yaw: 4, pitch: 17, cssClass: 'hs-portal',
           createTooltipFunc: imageHotspot,
           createTooltipArgs: {
-            width: 120,
+            width: 60,
             defaultUrl: 'https://i.postimg.cc/pLVStr1j/234-02.png',
             hoverUrl:   'https://i.postimg.cc/vTq8ZSfy/05.png',
             label: ''
@@ -120,7 +120,7 @@
           yaw: 1, pitch: 35, cssClass: 'hs-portal',
           createTooltipFunc: imageHotspot,
           createTooltipArgs: {
-            width: 140,
+            width: 70,
             defaultUrl: 'https://i.postimg.cc/Qd02Mpcq/234-04.png',
             hoverUrl:   'https://i.postimg.cc/dQrHFYsJ/Inspo.png',
             label: ''
@@ -133,7 +133,7 @@
           yaw: 8, pitch: 4, cssClass: 'hs-portal',
           createTooltipFunc: imageHotspot,
           createTooltipArgs: {
-            width: 130,
+            width: 65,
             defaultUrl: 'https://i.postimg.cc/nVswMmnY/hui-03.png',
             hoverUrl:   'https://i.postimg.cc/pVZYWXFY/Pinterest.png',
             label: ''
