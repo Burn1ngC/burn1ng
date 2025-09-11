@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <!-- ① 提前放跳转脚本：识别手机/平板直接去 mobile.html（可用 ?desktop=1 强制看桌面版） -->
+  <!-- ① 提前放跳转脚本：识别手机/平板直接去 MOBILE.html（?desktop=1 可强制桌面版） -->
   <script>
     (function () {
       var isMobileUA = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -32,55 +32,28 @@
       width: 100vw;
       height: 100vh;
     }
-
-    /* 自定义图片热点外层（Pannellum 会把它定位到视图里） */
-    .hs-portal {
-      pointer-events: auto;           /* 允许点击 */
-      transform: translateZ(0);       /* 更顺滑 */
-    }
-
-    /* 图片本体用 background，方便 hover 切换 */
+    .hs-portal { pointer-events: auto; transform: translateZ(0); }
     .hs-portal .hs-img {
-      width: 160px;                   /* 桌面默认尺寸 */
-      height: 160px;
-      background-size: contain;
-      background-position: center;
-      background-repeat: no-repeat;
-      cursor: pointer;
-      transition: transform .15s ease;
-      will-change: transform, background-image;
-      touch-action: manipulation; /* 移动端更好点击 */
+      width: 160px; height: 160px;
+      background-size: contain; background-position: center; background-repeat: no-repeat;
+      cursor: pointer; transition: transform .15s ease; will-change: transform, background-image;
+      touch-action: manipulation;
     }
-    .hs-portal .hs-img:hover {
-      transform: scale(1.06);         /* 桌面轻微放大反馈 */
-    }
-
-    /* 旁边文字标签（可选） */
+    .hs-portal .hs-img:hover { transform: scale(1.06); }
     .hs-portal .hs-label {
-      margin-top: 8px;
-      text-align: center;
+      margin-top: 8px; text-align: center;
       font: 700 22px/1.1 "Helvetica Neue", Arial, sans-serif;
-      color: #111;
-      text-shadow: 0 1px 2px rgba(255,255,255,.6);
-      pointer-events: none;
-      user-select: none;
+      color: #111; text-shadow: 0 1px 2px rgba(255,255,255,.6);
+      pointer-events: none; user-select: none;
     }
-
-    /* 响应式：小屏时（即便强制桌面）也缩小热点尺寸，避免过大 */
-    @media (max-width: 1024px) {
-      .hs-portal .hs-img { width: 120px; height: 120px; }
-    }
-    @media (max-width: 820px) {
-      .hs-portal .hs-img { width: 96px; height: 96px; }
-    }
-
-    /* 兜底提示层（当 WebGL/资源失败时显示） */
-    .fallback {
-      position: fixed; inset: 0; display: none; place-items: center;
-      color: #fff; background: #0b0b0b; padding: 24px; text-align: center;
+    @media (max-width: 1024px){ .hs-portal .hs-img { width:120px; height:120px; } }
+    @media (max-width: 820px) { .hs-portal .hs-img { width:96px;  height:96px;  } }
+    .fallback{
+      position:fixed; inset:0; display:none; place-items:center;
+      color:#fff; background:#0b0b0b; padding:24px; text-align:center;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
     }
-    .fallback a { color: #ff4d4f; }
+    .fallback a{ color:#ff4d4f; }
   </style>
 </head>
 <body>
@@ -89,7 +62,7 @@
     <div>
       <h2 style="margin:0 0 12px">加载全景失败或设备不支持 WebGL</h2>
       <p style="margin:0 0 16px">你可以浏览轻量版页面：</p>
-      <p><a href="MOBILE.html">👉 前往 mobile.html</a></p>
+      <p><a href="MOBILE.html">👉 前往 MOBILE.html</a></p>
       <p style="margin-top:16px;font-size:14px;opacity:.75">
         如需继续尝试桌面版，可刷新页面；或检查网络 / 资源链接是否可达。
       </p>
@@ -113,34 +86,20 @@
     // 1) 初始化全景
     const viewer = pannellum.viewer('pano', {
       type: 'equirectangular',
-      panorama: 'https://pub-a175b2c1f81440d28c95dba4c8b6e390.r2.dev/%E7%BD%91%E7%AB%99fin-01.png',   // ← 全景图
+      panorama: 'https://pub-a175b2c1f81440d28c95dba4c8b6e390.r2.dev/%E7%BD%91%E7%AB%99fin-01.png',
       autoLoad: true,
 
-      // 固定视场角（禁止缩放）
-      mouseZoom: false,
-      keyboardZoom: false,
-      doubleClickZoom: false,
-      showZoomCtrl: false,
+      mouseZoom: false, keyboardZoom: false, doubleClickZoom: false, showZoomCtrl: false,
       hfov: 95, minHfov: 95, maxHfov: 95,
 
-      // 视角限制 & 初始角度
-      yaw: 0,
-      minYaw: -100, maxYaw: 100,
-      pitch: 15,
-      minPitch: -60,
-      maxPitch: 47,
+      yaw: 0, minYaw: -100, maxYaw: 100,
+      pitch: 15, minPitch: -60, maxPitch: 47,
 
-      showFullscreenCtrl: false,
-      showControls: false,
-      compass: false,
+      showFullscreenCtrl: false, showControls: false, compass: false,
 
-      // 2) 三个图片热点（同类型，可独立配置）
       hotSpots: [
-        /* 热点 1：跳到 WORK.html */
         {
-          yaw: 4,
-          pitch: 17,
-          cssClass: 'hs-portal',
+          yaw: 4, pitch: 17, cssClass: 'hs-portal',
           createTooltipFunc: imageHotspot,
           createTooltipArgs: {
             width: 140,
@@ -151,12 +110,8 @@
           clickHandlerFunc: navigateHotspot,
           clickHandlerArgs: { url: 'WORK.html', target: '_self' }
         },
-
-        /* 热点 2：跳到 ABOUT（注意：若你文件名是“ABOUT ME.html”，保留即可；建议改名 about.html 更稳） */
         {
-          yaw: 1,
-          pitch: 35,
-          cssClass: 'hs-portal',
+          yaw: 1, pitch: 35, cssClass: 'hs-portal',
           createTooltipFunc: imageHotspot,
           createTooltipArgs: {
             width: 180,
@@ -165,14 +120,10 @@
             label: ''
           },
           clickHandlerFunc: navigateHotspot,
-          clickHandlerArgs: { url: 'ABOUT ME.html', target: '_self' } // ← 若你改名为 about.html，记得同步改这里
+          clickHandlerArgs: { url: 'ABOUT ME.html', target: '_self' }  /* 如改名为 about.html，这里也要同步 */
         },
-
-        /* 热点 3：跳到 CONTACT.html */
         {
-          yaw: 8,
-          pitch: 4,
-          cssClass: 'hs-portal',
+          yaw: 8, pitch: 4, cssClass: 'hs-portal',
           createTooltipFunc: imageHotspot,
           createTooltipArgs: {
             width: 170,
@@ -186,86 +137,13 @@
       ]
     });
 
-    // 1.1) Pannellum 失败兜底（比如图片 404 / CORS）
-    try {
-      viewer.on('error', function(){
-        document.getElementById('fallback').style.display = 'grid';
-      });
-    } catch(e) { /* 某些版本无 error 事件，忽略 */ }
+    // 加载失败兜底（比如图片 404 / CORS）
+    try { viewer.on('error', function(){ document.getElementById('fallback').style.display = 'grid'; }); } catch(e) {}
 
-    // 预加载各热点 hover 图，避免首次切换闪烁
+    // 预加载 hover 图
     (function preload(){
       [
         'https://i.postimg.cc/vTq8ZSfy/05.png',
         'https://i.postimg.cc/dQrHFYsJ/Inspo.png',
         'https://i.postimg.cc/pVZYWXFY/Pinterest.png'
-      ].forEach(src=>{
-        const i = new Image(); i.referrerPolicy = 'no-referrer'; i.src = src;
-      });
-    })();
-
-    // 3) 自定义热点：图片 + hover（桌面）/ 触摸轻触（移动）替代
-    function imageHotspot(hotSpotDiv, args) {
-      const imgBox = document.createElement('div');
-      imgBox.className = 'hs-img';
-
-      // 尺寸设置
-      if (args.width) {
-        imgBox.style.width = args.width + 'px';
-        imgBox.style.height = (args.height ? args.height : args.width) + 'px';
-      }
-
-      const normal = args.defaultUrl;
-      const hover  = args.hoverUrl || args.defaultUrl;
-      imgBox.style.backgroundImage = `url("${normal}")`;
-
-      // 桌面 hover
-      imgBox.addEventListener('mouseenter', () => {
-        imgBox.style.backgroundImage = `url("${hover}")`;
-      });
-      imgBox.addEventListener('mouseleave', () => {
-        imgBox.style.backgroundImage = `url("${normal}")`;
-      });
-
-      // 触摸“轻触”模拟 hover（短暂切换做反馈）
-      imgBox.addEventListener('touchstart', () => {
-        imgBox.style.backgroundImage = `url("${hover}")`;
-        setTimeout(()=>{ imgBox.style.backgroundImage = `url("${normal}")`; }, 180);
-      }, {passive:true});
-
-      hotSpotDiv.appendChild(imgBox);
-
-      // 可选：文字标签
-      if (args.label) {
-        const label = document.createElement('div');
-        label.className = 'hs-label';
-        label.textContent = args.label;
-        hotSpotDiv.appendChild(label);
-      }
-    }
-
-    // 4) 点击热点跳转
-    function navigateHotspot(event, args) {
-      if (!args || !args.url) return;
-      if (args.target === '_blank') {
-        window.open(args.url, '_blank', 'noopener');
-      } else {
-        window.location.assign(args.url); // 同域名页面
-      }
-    }
-
-    // —— 小工具：按 D 键打印当前 yaw/pitch（微调热点位置） —— 
-    window.addEventListener('keydown', (e) => {
-      if (e.key.toLowerCase() === 'd') {
-        console.log('yaw:', viewer.getYaw().toFixed(2), 'pitch:', viewer.getPitch().toFixed(2));
-      }
-    });
-  </script>
-  <noscript>
-    <div class="fallback" style="display:grid">
-      本页面依赖 JavaScript/WebGL。你也可以访问 <a href="mobile.html">mobile.html</a>。
-    </div>
-  </noscript>
-</body>
-</html>
-
+      ].fo
