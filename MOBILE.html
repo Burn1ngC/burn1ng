@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>burn1ng.me — mobile</title>
+  <link rel="icon" href="https://i.postimg.cc/vTq8ZSfy/05.png" type="image/png">
+  <style>
+    :root { --brand:#ff4d4f; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 20px 16px 24px;
+      background:#0b0b0b; color:#fff;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial;
+    }
+    header { margin: 8px 0 24px; }
+    h1 { margin:0 0 6px; font-size:22px; font-weight:700; }
+    p  { margin:0; opacity:.8; font-size:14px; line-height:1.5; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .card {
+      display:block; text-decoration:none; color:#fff;
+      background:#141414; border:1px solid #222; border-radius:14px;
+      padding:14px; min-height:92px;
+    }
+    .card b { display:block; font-size:16px; margin-bottom:6px; }
+    .card span { font-size:12px; opacity:.75; }
+
+    .cta {
+      margin-top: 24px; display:flex; gap:12px; flex-wrap:wrap;
+    }
+    .btn {
+      display:inline-block; padding:10px 14px; border-radius:999px;
+      text-decoration:none; color:#fff; background:var(--brand);
+      font-size:14px; font-weight:600;
+    }
+    .ghost {
+      background:transparent; border:1px solid #333;
+    }
+    footer {
+      margin-top: 28px; opacity:.6; font-size:12px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>burn1ng.me</h1>
+    <p>From <em>burn1ngchrome</em> to <em>burn1ng.me</em> — 把赛博的“chrome”收束成 “me”。</p>
+  </header>
+
+  <nav class="grid">
+    <a class="card" href="WORK.html">
+      <b>WORK</b><span>精选项目与平面作品</span>
+    </a>
+    <a class="card" href="ABOUT ME.html">
+      <b>ABOUT</b><span>我是谁 / 我在做什么</span>
+    </a>
+    <a class="card" href="CONTACT.html">
+      <b>CONTACT</b><span>联系与社交</span>
+    </a>
+    <a class="card" href="OTHERS.html">
+      <b>OTHERS</b><span>杂项 / 实验 / 灵感夹</span>
+    </a>
+  </nav>
+
+  <div class="cta">
+    <a class="btn" href="index.html?desktop=1">查看桌面版</a>
+    <a class="btn ghost" href="/">返回首页</a>
+  </div>
+
+  <footer>© burn1ng.me</footer>
+</body>
+</html>
