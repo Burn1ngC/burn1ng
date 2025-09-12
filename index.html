@@ -9,7 +9,7 @@
       var forceDesktop = new URLSearchParams(location.search).has('desktop');
       if ((isMobileUA || isSmallScreen) && !forceDesktop) {
         // 用 replace 防止返回键循环
-        location.replace('mobile.html');
+        location.replace('MOBILE.html');
       }
     })();
   </script>
@@ -20,6 +20,11 @@
   <title>Burn1ngChrome;)</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.css">
   <style>
+    /* 只针对音乐热点，隐藏默认的小白点底座 */
+.pnlm-hotspot.hs-music .pnlm-hotspot-base {
+  display: none !important;
+}
+
     html, body {
       height: 100%;
       margin: 0;
@@ -81,6 +86,18 @@
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
     }
     .fallback a { color: #ff4d4f; }
+
+    /* 小提醒角标（可选） */
+    .music-badge {
+      position: absolute;
+      right: 6px; bottom: 6px;
+      width: 14px; height: 14px; border-radius: 50%;
+      background: rgba(255,255,255,0.9);
+      box-shadow: 0 1px 3px rgba(0,0,0,.25);
+      pointer-events: none;
+      display: none;
+    }
+    .hs-portal.hs-music .music-badge { display: block; }
   </style>
 </head>
 <body>
@@ -89,7 +106,7 @@
     <div>
       <h2 style="margin:0 0 12px">加载全景失败或设备不支持 WebGL</h2>
       <p style="margin:0 0 16px">你可以浏览轻量版页面：</p>
-      <p><a href="mobile.html">👉 前往 mobile.html</a></p>
+      <p><a href="MOBILE.html">👉 前往 mobile.html</a></p>
       <p style="margin-top:16px;font-size:14px;opacity:.75">
         如需继续尝试桌面版，可刷新页面；或检查网络 / 资源链接是否可达。
       </p>
@@ -98,7 +115,70 @@
 
   <script src="https://cdn.jsdelivr.net/npm/pannellum/build/pannellum.js"></script>
   <script>
-    // 0) 基础能力检测：无 WebGL 直接给兜底
+    // ===== 音频播放器（单例） =====
+    let bgAudio = new Audio();          // 单一 audio element
+    bgAudio.loop = true;
+    bgAudio.preload = 'auto';
+    bgAudio.volume = 0.6;               // 可调整
+    let isPlaying = false;
+    let autoplayBlocked = false;
+
+    // 尝试自动播放（页面打开时）
+    function tryAutoplay(src) {
+      if (src) bgAudio.src = src;
+      // Safari/iOS 等会拒绝带声自动播放 —— 捕获 promise
+      bgAudio.play().then(() => {
+        isPlaying = true;
+        updateMusicHotspotsVisual();
+      }).catch((err) => {
+        // 自动播放被阻止（常见于移动端或浏览器策略）
+        autoplayBlocked = true;
+        isPlaying = false;
+        updateMusicHotspotsVisual();
+        // 不抛错
+      });
+    }
+
+    // 播放/暂停切换
+    function toggleAudio() {
+      if (!bgAudio.src) return;
+      if (isPlaying) {
+        bgAudio.pause();
+        isPlaying = false;
+        updateMusicHotspotsVisual();
+      } else {
+        bgAudio.play().then(() => {
+          isPlaying = true;
+          updateMusicHotspotsVisual();
+        }).catch(()=> {
+          // 如果 play 再次被阻止（应少见），保留状态
+          autoplayBlocked = true;
+          isPlaying = false;
+          updateMusicHotspotsVisual();
+        });
+      }
+    }
+
+    // 更新页面上所有“音乐热点”的显示（playing/default）
+    function updateMusicHotspotsVisual() {
+      // 找到 Pannellum 插入的热点 DOM（class hs-portal + data-role=music）
+      document.querySelectorAll('.hs-portal.hs-music').forEach(hot => {
+        const imgBox = hot.querySelector('.hs-img');
+        if (!imgBox) return;
+        const playing = hot.dataset.playingUrl || hot.dataset.hoverUrl || hot.dataset.defaultUrl;
+        const normal  = hot.dataset.defaultUrl;
+        // 如果当前处于 hover（浏览器鼠标指向），让 hover 行为继续优先（hover handler 会覆盖）
+        if (isPlaying) {
+          imgBox.style.backgroundImage = `url("${hot.dataset.playingUrl || hot.dataset.hoverUrl || hot.dataset.defaultUrl}")`;
+          hot.setAttribute('aria-pressed','true');
+        } else {
+          imgBox.style.backgroundImage = `url("${normal}")`;
+          hot.setAttribute('aria-pressed','false');
+        }
+      });
+    }
+
+    // ====== 0) 基础能力检测：无 WebGL 直接给兜底 ======
     (function ensureWebGL(){
       try {
         var c = document.createElement('canvas');
@@ -110,37 +190,25 @@
       }
     })();
 
-    // 1) 初始化全景
+    // ====== 1) 初始化全景（你原来的配置，大致保持） ======
     const viewer = pannellum.viewer('pano', {
       type: 'equirectangular',
-      panorama: 'https://pub-a175b2c1f81440d28c95dba4c8b6e390.r2.dev/%E7%BD%91%E7%AB%99fin-01.png',   // ← 全景图
+      panorama: 'main-01.jpg',   // ← 全景图（保持）
       autoLoad: true,
-
-      // 固定视场角（禁止缩放）
       mouseZoom: false,
       keyboardZoom: false,
       doubleClickZoom: false,
       showZoomCtrl: false,
       hfov: 95, minHfov: 95, maxHfov: 95,
-
-      // 视角限制 & 初始角度
-      yaw: 0,
-      minYaw: -100, maxYaw: 100,
-      pitch: 15,
-      minPitch: -60,
-      maxPitch: 47,
-
+      yaw: 0, minYaw: -100, maxYaw: 100,
+      pitch: 15, minPitch: -60, maxPitch: 47,
       showFullscreenCtrl: false,
       showControls: false,
       compass: false,
-
-      // 2) 三个图片热点（同类型，可独立配置）
       hotSpots: [
-        /* 热点 1：跳到 WORK.html */
+        /* 原来热点 1：WORK */
         {
-          yaw: 4,
-          pitch: 17,
-          cssClass: 'hs-portal',
+          yaw: 4, pitch: 17, cssClass: 'hs-portal',
           createTooltipFunc: imageHotspot,
           createTooltipArgs: {
             width: 140,
@@ -152,11 +220,9 @@
           clickHandlerArgs: { url: 'WORK.html', target: '_self' }
         },
 
-        /* 热点 2：跳到 ABOUT（注意：若你文件名是“ABOUT ME.html”，保留即可；建议改名 about.html 更稳） */
+        /* 原来热点 2：ABOUT */
         {
-          yaw: 1,
-          pitch: 35,
-          cssClass: 'hs-portal',
+          yaw: 1, pitch: 35, cssClass: 'hs-portal',
           createTooltipFunc: imageHotspot,
           createTooltipArgs: {
             width: 180,
@@ -165,14 +231,12 @@
             label: ''
           },
           clickHandlerFunc: navigateHotspot,
-          clickHandlerArgs: { url: 'ABOUT ME.html', target: '_self' } // ← 若你改名为 about.html，记得同步改这里
+          clickHandlerArgs: { url: 'ABOUT ME.html', target: '_self' }
         },
 
-        /* 热点 3：跳到 CONTACT.html */
+        /* 原来热点 3：CONTACT */
         {
-          yaw: 8,
-          pitch: 4,
-          cssClass: 'hs-portal',
+          yaw: 8, pitch: 4, cssClass: 'hs-portal',
           createTooltipFunc: imageHotspot,
           createTooltipArgs: {
             width: 170,
@@ -182,29 +246,46 @@
           },
           clickHandlerFunc: navigateHotspot,
           clickHandlerArgs: { url: 'CONTACT.html', target: '_self' }
+        },
+
+        /* 新增：音乐热点（点击切换播放/暂停；悬停显示 hover 图；播放时可显示 playing 图） */
+        {
+          yaw: -30, pitch: -5, cssClass: 'hs-portal hs-music',
+          createTooltipFunc: musicHotspot,
+          createTooltipArgs: {
+            width: 140,
+            defaultUrl: 'OLD.png',      // 静音/默认图片（请替换）
+            hoverUrl:   'OLD.png',    // 悬停图片（请替换）
+            playingUrl: 'OLD.png',       // 播放时图片（可选，未提供则用 hoverUrl）
+            audioSrc:   '2025-09-12 05-24-40.mp3'        // 背景音乐文件（请替换）
+          }
         }
       ]
     });
 
-    // 1.1) Pannellum 失败兜底（比如图片 404 / CORS）
+    // Pannellum 失败兜底（比如图片 404 / CORS）
     try {
       viewer.on('error', function(){
         document.getElementById('fallback').style.display = 'grid';
       });
     } catch(e) { /* 某些版本无 error 事件，忽略 */ }
 
-    // 预加载各热点 hover 图，避免首次切换闪烁
+    // 预加载各热点 hover 图 + 音乐封面，避免首次切换闪烁
     (function preload(){
       [
         'https://i.postimg.cc/vTq8ZSfy/05.png',
         'https://i.postimg.cc/dQrHFYsJ/Inspo.png',
-        'https://i.postimg.cc/pVZYWXFY/Pinterest.png'
+        'https://i.postimg.cc/pVZYWXFY/Pinterest.png',
+        /* 音乐热点相关（占位，请用你的文件） */
+        'music-off.png','music-hover.png','music-on.png'
       ].forEach(src=>{
         const i = new Image(); i.referrerPolicy = 'no-referrer'; i.src = src;
       });
+      // 也预加载音频资源（浏览器可能延后下载）
+      const a = new Audio(); a.preload = 'auto'; a.src = 'bg-music.mp3';
     })();
 
-    // 3) 自定义热点：图片 + hover（桌面）/ 触摸轻触（移动）替代
+    // 3) 自定义热点：图片 + hover（桌面）/ 触摸轻触（移动）
     function imageHotspot(hotSpotDiv, args) {
       const imgBox = document.createElement('div');
       imgBox.className = 'hs-img';
@@ -244,7 +325,74 @@
       }
     }
 
-    // 4) 点击热点跳转
+    // ===== music hotspot: 专用热点，带播放控制与状态更新 =====
+    function musicHotspot(hotSpotDiv, args) {
+      hotSpotDiv.classList.add('hs-music');
+      // 保存 URLs 到 dataset 以便全局更新时读取
+      hotSpotDiv.dataset.defaultUrl = args.defaultUrl || '';
+      hotSpotDiv.dataset.hoverUrl = args.hoverUrl || args.defaultUrl || '';
+      hotSpotDiv.dataset.playingUrl = args.playingUrl || args.hoverUrl || args.defaultUrl || '';
+      hotSpotDiv.dataset.audioSrc = args.audioSrc || '';
+
+      const imgBox = document.createElement('div');
+      imgBox.className = 'hs-img';
+      if (args.width) {
+        imgBox.style.width = args.width + 'px';
+        imgBox.style.height = (args.height ? args.height : args.width) + 'px';
+      }
+
+      // 初始显示（如果 autoplay 成功后会更新）
+      imgBox.style.backgroundImage = `url("${hotSpotDiv.dataset.defaultUrl}")`;
+      hotSpotDiv.appendChild(imgBox);
+
+      // 小角标（可见表示该热点是音乐）
+      const badge = document.createElement('span');
+      badge.className = 'music-badge';
+      hotSpotDiv.appendChild(badge);
+
+      // 桌面 hover：优先显示 hover 图（不影响播放状态，但 mouseleave 后恢复播放/默认图）
+      imgBox.addEventListener('mouseenter', () => {
+        imgBox.style.backgroundImage = `url("${hotSpotDiv.dataset.hoverUrl}")`;
+      });
+      imgBox.addEventListener('mouseleave', () => {
+        // 根据播放状态恢复
+        if (isPlaying) {
+          imgBox.style.backgroundImage = `url("${hotSpotDiv.dataset.playingUrl}")`;
+        } else {
+          imgBox.style.backgroundImage = `url("${hotSpotDiv.dataset.defaultUrl}")`;
+        }
+      });
+
+      // 移动端 touch 反馈（短暂显示 hover）
+      imgBox.addEventListener('touchstart', () => {
+        imgBox.style.backgroundImage = `url("${hotSpotDiv.dataset.hoverUrl}")`;
+        setTimeout(()=> {
+          if (isPlaying) imgBox.style.backgroundImage = `url("${hotSpotDiv.dataset.playingUrl}")`;
+          else imgBox.style.backgroundImage = `url("${hotSpotDiv.dataset.defaultUrl}")`;
+        }, 200);
+      }, {passive:true});
+
+      // 点击切换播放/暂停 —— 并确保 audio src 已设置
+      hotSpotDiv.addEventListener('click', (e) => {
+        // 如果 hotspot 自带 audioSrc，切换到该源
+        const audioSrc = hotSpotDiv.dataset.audioSrc;
+        if (audioSrc && bgAudio.src !== audioSrc) {
+          bgAudio.src = audioSrc;
+        }
+        toggleAudio();
+      });
+
+      // 如果页面一载入就应该尝试 autoplay（你要求“点开网页自动播放音乐”）
+      // 我们在此处尝试 autoplay（如果浏览器允许）
+      if (hotSpotDiv.dataset.audioSrc) {
+        // slight delay to allow browser to set up audio element
+        setTimeout(()=> {
+          tryAutoplay(hotSpotDiv.dataset.audioSrc);
+        }, 250);
+      }
+    }
+
+    // 4) 点击热点跳转（原逻辑）
     function navigateHotspot(event, args) {
       if (!args || !args.url) return;
       if (args.target === '_blank') {
@@ -260,6 +408,12 @@
         console.log('yaw:', viewer.getYaw().toFixed(2), 'pitch:', viewer.getPitch().toFixed(2));
       }
     });
+
+    // 当音频开始/暂停后，更新热点显示（若用户通过其它方式控制 audio，也能反映）
+    bgAudio.addEventListener('play', ()=> { isPlaying=true; updateMusicHotspotsVisual(); });
+    bgAudio.addEventListener('pause', ()=> { isPlaying=false; updateMusicHotspotsVisual(); });
+    bgAudio.addEventListener('ended', ()=> { isPlaying=false; updateMusicHotspotsVisual(); });
+
   </script>
   <noscript>
     <div class="fallback" style="display:grid">
