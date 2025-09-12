@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Works — Burn1ngChrome</title>
+
+  <!-- 字体（与 About 页一致） -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;600;700&display=swap" rel="stylesheet">
+ <link rel="icon" href="https://i.postimg.cc/vTq8ZSfy/05.png" type="image/png">
+  <meta charset="UTF-8" />
+  <style>
+    :root{
+      /* 中央内容宽度 / 顶部留白 / 图片垂直间距：按需改 */
+      --content-w: 760px;
+      --pad-top: 96px;
+      --gap-vertical: 84px;
+
+      --font-sc: "Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+    }
+
+    html,body{
+      margin:0; background:#fff; color:#111;
+      font-family: var(--font-sc);
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      scroll-behavior:smooth;
+    }
+
+    /* 中央主列：固定宽度、居中、只负责竖排图片 */
+    .main-col{
+      width: var(--content-w);
+      margin: 0 auto;
+      padding: var(--pad-top) 24px 48px;
+      box-sizing: border-box;
+    }
+
+    /* 图片块（竖向排列）—— 去掉灰底 */
+    .item{
+      margin: 0 0 var(--gap-vertical) 0;
+      background: transparent;   /* ← 改：去掉 #ddd 灰底 */
+      border-radius: 0;          /* 可留 2px，如果你还想要圆角 */
+      overflow: visible;         /* 透明时不需要裁剪，可保留 hidden 也行 */
+    }
+    .item > img{
+      display:block; width:100%; height:auto; object-fit:cover;
+      background: transparent;   /* 透明底图片不叠加任何底色 */
+    }
+
+    /* 右侧固定索引（与 About 页同风格，黑色无阴影） */
+    .side-index{
+      position: fixed;
+      /* 把索引放在主列右侧“外边”，与图片完全错开 */
+      right: clamp(12px, calc((100vw - var(--content-w))/2 - 28px), 48px);
+      top: clamp(16px, 3vw, 32px);
+      display:flex; flex-direction:column; gap:14px; align-items:flex-start;
+      z-index: 1000; pointer-events:auto;
+    }
+    .side-index a{ color:#111; text-decoration:none; }
+    .side-index .side-link{
+      font-size:14px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; padding:2px 0;
+    }
+    /* waybackhome 要小写且一行一个词 */
+    .side-index .home{
+      text-transform:none !important;
+      display:inline-flex; flex-direction:column; gap:2px;
+      font-weight:600; font-size:13px; letter-spacing:0;
+    }
+    .side-index .home span{ display:block; }
+
+    /* 响应式：窄屏把主列变宽度自适应，并把索引收回到右上角 */
+    @media (max-width: 900px){
+      :root{ --content-w: calc(100% - 48px); --pad-top: 56px; --gap-vertical: 48px; }
+      .main-col{ width:auto; padding: var(--pad-top) 16px 40px; }
+      .side-index{ right: 16px; top: 16px; }
+    }
+    /* 超窄屏可选择隐藏索引，避免遮挡（需要始终显示就删掉这段） */
+    @media (max-width: 480px){
+      .side-index{ display:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 右侧固定索引（不会碰到图片） -->
+  <nav class="side-index" aria-label="Site index">
+    <a class="side-link" href="ABOUT ME.html">ABOUT ME</a>
+    <a class="side-link" href="WORK.html">WORKS</a>
+    <a class="side-link" href="others.html">OTHERS</a>
+    <a class="home" href="index.html" title="Go to homepage">
+      <span>way</span><span>back</span><span>home</span>
+    </a>
+  </nav>
+
+  <!-- 中央竖排很多图：把 src 换成你的作品图即可（可无限复制 .item） -->
+  <main class="main-col" role="main" aria-label="Gallery">
+    <article class="item"><img src="can-02.png" alt="作品 1" loading="lazy"></article>
+    <article class="item"><img src="Snipaste_2025-09-12_06-15-57.png" alt="作品 10" loading="lazy"></article>
+    <article class="item"><img src="fin_画板 1 副本 3.jpg" alt="作品 2" loading="lazy"></article>
+    <article class="item"><img src="档案散件fin-05.png" alt="作品 3" loading="lazy"></article>
+    <article class="item"><img src="档案散件fin-04.png" alt="作品 4" loading="lazy"></article>
+    <article class="item"><img src="档案散件fin-07.png" alt="作品 5" loading="lazy"></article>
+    <article class="item"><img src="档案散件fin-06.png"  alt="作品 6" loading="lazy"></article>
+    <article class="item"><img src="档案散件fin-09.png" alt="作品 7" loading="lazy"></article>
+    <article class="item"><img src="档案散件fin-08.png" alt="作品 8" loading="lazy"></article>
+    <article class="item"><img src="档案散件fin-11.png"  alt="作品 9" loading="lazy"></article>
+    <article class="item"><img src="档案散件fin-10.png" alt="作品 10" loading="lazy"></article>
+    <article class="item"><img src="档案散件fin-13.png" alt="作品 8" loading="lazy"></article>
+    <article class="item"><img src="档案散件fin-12.png"  alt="作品 9" loading="lazy"></article>
+    <article class="item"><img src="Snipaste_2025-09-12_06-23-00.png" alt="作品 10" loading="lazy"></article>
+    <article class="item"><img src="zi-38.png" alt="作品 10" loading="lazy"></article>
+    <article class="item"><img src="Snipaste_2025-09-12_06-33-42.png" alt="作品 8" loading="lazy"></article>
+    <article class="item"><img src="Snipaste_2025-09-12_06-39-50.png" alt="作品 10" loading="lazy"></article>
+    <article class="item"><img src="work1-07.png"  alt="作品 9" loading="lazy"></article>
+    <article class="item"><img src="Snipaste_2025-09-12_06-51-18.png"  alt="作品 9" loading="lazy"></article>
+    <article class="item"><img src="Google Chrome - Light.png"  alt="作品 9" loading="lazy"></article>
+    <article class="item"><img src="Google Chrome - Ligh2t.png"  alt="作品 9" loading="lazy"></article>
+    <article class="item"><img src="G1oogle Chrome - Light.png"  alt="作品 9" loading="lazy"></article>
+     <article class="item"><img src="Snipaste_2025-09-12_07-09-23.png"  alt="作品 9" loading="lazy"></article>
+      <article class="item"><img src="Snipaste_2025-09-12_07-09-50.png"  alt="作品 9" loading="lazy"></article>
+       <article class="item"><img src="Snipaste_2025-09-12_07-10-57.png"  alt="作品 9" loading="lazy"></article>
+    <!-- 继续复制更多 .item ... -->
+    <!-- 继续复制更多 .item ... -->
+  </main>
+
+</body>
+</html>
