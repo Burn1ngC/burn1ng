@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>Video — Burn1ngChrome</title>
+  <style>
+    html,body{height:100%;margin:0;background:#000;}
+    /* 让视频铺满视口并保持裁切填充 */
+    .video-wrap{position:fixed; inset:0; overflow:hidden; background:#000;}
+    video{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover;  /* 充满并裁切 */
+      background:#000;   /* 透明视频时的底色 */
+    }
+    /* 可选：右下角最简控件区 */
+    .controls{
+      position:fixed; right:16px; bottom:16px; z-index:2;
+      display:flex; gap:8px; font:14px/1 system-ui, -apple-system, Segoe UI, Roboto;
+    }
+    .btn{background:rgba(255,255,255,.12); color:#fff; border:0; padding:8px 10px; border-radius:6px; cursor:pointer}
+    .btn:hover{background:rgba(255,255,255,.2)}
+  </style>
+</head>
+<body>
+
+  <div class="video-wrap">
+    <video id="bgvid"
+      src="1a14375e893d7a32b469747113102ff2.mp4"            <!-- ← 换成你的视频地址 -->
+      playsinline                     <!-- iOS 内联播放 -->
+      webkit-playsinline
+      muted                           <!-- 为了移动端自动播放 -->
+      autoplay
+      loop
+      controlslist="nodownload noplaybackrate"
+      preload="auto"
+      poster="poster.jpg">            <!-- 可选：封面图 -->
+      <!-- 兼容多格式（可选）：
+      <source src="YOUR_VIDEO.webm" type="video/webm">
+      <source src="YOUR_VIDEO.mp4"  type="video/mp4">
+      -->
+      您的浏览器不支持 HTML5 视频。
+    </video>
+  </div>
+
+  <!-- 可选：最简播放/静音按钮（如不需要可整段删除） -->
+  <div class="controls">
+    <button class="btn" id="togglePlay">暂停</button>
+    <button class="btn" id="toggleMute">取消静音</button>
+  </div>
+
+  <script>
+    const v = document.getElementById('bgvid');
+    const bp = document.getElementById('togglePlay');
+    const bm = document.getElementById('toggleMute');
+
+    // 自动播放可能被拦截：尝试播放，失败则显示播放按钮
+    v.play().catch(()=>{ bp.textContent = '播放'; });
+
+    bp.addEventListener('click', () => {
+      if (v.paused) { v.play(); bp.textContent='暂停'; }
+      else { v.pause(); bp.textContent='播放'; }
+    });
+
+    bm.addEventListener('click', () => {
+      v.muted = !v.muted;
+      bm.textContent = v.muted ? '取消静音' : '静音';
+    });
+
+    // 当用户与页面交互后，若仍未播放再尝试一次
+    window.addEventListener('click', ()=> v.paused && v.play().catch(()=>{}), {once:true});
+  </script>
+</body>
+</html>
